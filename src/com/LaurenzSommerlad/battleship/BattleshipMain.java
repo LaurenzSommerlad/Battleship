@@ -1,4 +1,4 @@
-package com.almasb.battleship;
+package src.com.LaurenzSommerlad.battleship;
 
 import java.util.Random;
 
@@ -11,8 +11,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import com.almasb.battleship.Board.Cell;
 
 public class BattleshipMain extends Application {
 
@@ -35,7 +33,7 @@ public class BattleshipMain extends Application {
             if (!running)
                 return;
 
-            Cell cell = (Cell) event.getSource();
+            Board.Cell cell = (Board.Cell) event.getSource();
             if (cell.wasShot)
                 return;
 
@@ -54,7 +52,7 @@ public class BattleshipMain extends Application {
             if (running)
                 return;
 
-            Cell cell = (Cell) event.getSource();
+            Board.Cell cell = (Board.Cell) event.getSource();
             if (playerBoard.placeShip(new Ship(shipsToPlace, event.getButton() == MouseButton.PRIMARY), cell.x, cell.y)) {
                 if (--shipsToPlace == 0) {
                     startGame();
@@ -75,7 +73,7 @@ public class BattleshipMain extends Application {
             int x = random.nextInt(10);
             int y = random.nextInt(10);
 
-            Cell cell = playerBoard.getCell(x, y);
+            Board.Cell cell = playerBoard.getCell(x, y);
             if (cell.wasShot)
                 continue;
 
