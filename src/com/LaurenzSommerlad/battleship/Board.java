@@ -162,7 +162,7 @@ public class Board extends Parent {
                 ship.hit();
                 setFill(Color.RED);
                 if (!ship.isAlive()) {
-                    board.ships--;
+                    board.ships--;System.out.println(ships);
                 }
                 return true;
             }

@@ -25,7 +25,7 @@ public class Ship extends Parent {
     }
 
     public void hit() {
-        health--;
+        health--; System.out.println(health);
     }
 
     public boolean isAlive() {

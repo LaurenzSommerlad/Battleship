@@ -39,11 +39,8 @@ public class BattleshipMain extends Application {
     private GameMenu gameMenu;
 
     private Parent root() throws IOException {
-        Pane root = new Pane();
+        BorderPane root = new BorderPane();
         root.setPrefSize(960, 540);
-
-
-
 
         enemyBoard = new Board(true, event -> {
             if (!running)
@@ -77,16 +74,11 @@ public class BattleshipMain extends Application {
         });
 
         HBox hbox = new HBox(340, enemyBoard, playerBoard);
-        hbox.setAlignment(Pos.CENTER);
+        hbox.setAlignment(Pos.TOP_LEFT);
 
-        //root.setCenter(vbox);
-
-
-
-
-
-
-
+        //VBox stats = new VBox();
+        //HBox stats = new HBox();
+        //System.out.println(health);
 
         InputStream is = Files.newInputStream(Paths.get("GitHub/Battleship/src/com/LaurenzSommerlad/battleship/Battleship.jpg"));
         Image img = new Image(is);
@@ -102,6 +94,7 @@ public class BattleshipMain extends Application {
 
         root.getChildren().addAll(imgView, hbox, gameMenu);
 
+        //root.setCenter(hbox);
 
         return root;
     }
@@ -199,11 +192,11 @@ public class BattleshipMain extends Application {
 
             menu1.setTranslateX(offset);
 
-            //Scene scene = new Scene(root());
             MenuButton btnResume = new MenuButton("PLAY");
-          // if(whindow != null && whindow.getScene() == scene)
-          //     btnResume.setText(new Text("RESUME"));
-            //btnResume.setText("");
+            if(getScene() == scene) {
+                btnResume.setText(new Text("RESUME"));
+            }
+
             btnResume.setOnMouseClicked(event -> {
                 FadeTransition ft = new FadeTransition(Duration.seconds(0.5), this);
                 ft.setFromValue(1);
@@ -263,7 +256,7 @@ public class BattleshipMain extends Application {
 
             Rectangle bg = new Rectangle(960, 540);
             bg.setOpacity(0);
-            if(whindow !=null && whindow.getScene() == scene) {
+            if(getScene() == scene) {
                 bg.setFill(Color.GREY);
                 bg.setOpacity(0.4);
             }
@@ -276,7 +269,11 @@ public class BattleshipMain extends Application {
         private Text text;
 
         public void setText(Text text) {
+            this.getChildren().remove(1);
             this.text = text;
+            text.setFont(text.getFont().font(20));
+            text.setFill(Color.WHITE);
+            getChildren().add(text);
         }
 
         public MenuButton(String name) {
@@ -354,12 +351,15 @@ public class BattleshipMain extends Application {
 
         Pane root0 = new Pane();
         root0.setPrefSize(750, 422);
-        root0.getChildren().addAll(startimgView, gameMenu);
-        gameMenu.setVisible(true);
+        GameMenu gameMenu0 = new GameMenu();
+        root0.getChildren().addAll(startimgView, gameMenu0);
+        gameMenu0.setVisible(true);
+
+
 
 
         Scene scene0 = new Scene(root0);
-        Scene scene1 = new Scene(createContent());
+        //Scene scene1 = new Scene(createContent());
         primaryStage.setTitle("Battleship");
         whindow = primaryStage;
         whindow.setScene(scene0);
