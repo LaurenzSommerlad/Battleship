@@ -88,7 +88,7 @@ public class GameMenu_Battleship extends Application {
 
             menu1.setTranslateX(offset);
 
-            MenuButton btnResume = new MenuButton("PLAY");
+            MenuButton btnResume = new MenuButton("RESUME");
             btnResume.setOnMouseClicked(event -> {
                 FadeTransition ft = new FadeTransition(Duration.seconds(0.5), this);
                 ft.setFromValue(1);
