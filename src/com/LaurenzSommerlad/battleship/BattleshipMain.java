@@ -22,7 +22,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -37,6 +39,8 @@ public class BattleshipMain extends Application {
 
     private Random random = new Random();
     private GameMenu gameMenu;
+    private Scene endScene;
+    private GameMenu gameMenu1;
 
     private Parent root() throws IOException {
         BorderPane root = new BorderPane();
@@ -53,12 +57,23 @@ public class BattleshipMain extends Application {
             enemyTurn = !cell.shoot();
 
             if (enemyBoard.ships == 0) {
+                try {
+                    endScene = new Scene(player_won(true));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                window.setScene(endScene);
                 System.out.println("YOU WIN");
-                System.exit(0); // implemtent exit screen
+                //System.exit(0); // implemtent exit screen
             }
 
-            if (enemyTurn)
-                enemyMove();
+            if (enemyTurn) {
+                try {
+                    enemyMove();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
         playerBoard = new Board(false, event -> {
@@ -99,6 +114,50 @@ public class BattleshipMain extends Application {
         return root;
     }
 
+    public Parent player_won(boolean player_won) throws IOException {
+        Scene EndScene;
+        Text text;
+        BorderPane endPane = new BorderPane();
+
+        endPane.setPrefSize(850, 600);
+
+        InputStream is = Files.newInputStream(Paths.get("GitHub/Battleship/src/com/LaurenzSommerlad/battleship/gameover"));
+        Image endimg = new Image(is);
+        is.close();
+
+        ImageView endimgView = new ImageView(endimg);
+        endimgView.setFitWidth(900);
+        endimgView.setFitHeight(800);
+
+        if(player_won){
+            text = new Text("CONGRATULATIONS YOU WON !!!");
+            text.setFont(Font.font(50));
+            text.setFill(Color.GREEN);
+            text.setX(50);text.setY(200);
+        }
+        else {
+            text = new Text("ALL YOUR SHIPS WERE DESTROYED :( \nYOU SUCK!!!");
+            text.setFont(Font.font(40));
+            text.setFill(Color.RED);
+            text.setX(100);text.setY(150);
+            text.setTextAlignment(TextAlignment.CENTER);
+        }
+
+        //VBox vbox = new VBox(50);
+        //MenuButton restart = new MenuButton("RESTART");
+        //MenuButton Main_Menu = new MenuButton("Main Menu");
+        //MenuButton exit = new MenuButton("Exit");
+        //VBox vbox = new VBox(50, restart, Main_Menu, exit);
+        //vbox.getChildren().addAll(restart);
+        //vbox.setAlignment(Pos.BOTTOM_LEFT);
+
+        gameMenu1 = new GameMenu();
+        endPane.getChildren().addAll(endimgView, text,gameMenu1);
+
+        return endPane;
+
+    }
+
     private Parent createContent() {
         BorderPane root = new BorderPane();
         root.setPrefSize(600, 800);
@@ -116,12 +175,18 @@ public class BattleshipMain extends Application {
             enemyTurn = !cell.shoot();
 
             if (enemyBoard.ships == 0) {
+
                 System.out.println("YOU WIN");
-                System.exit(0); // implemtent exit screen
+                //System.exit(0); // implemtent exit screen
             }
 
-            if (enemyTurn)
-                enemyMove();
+            if (enemyTurn) {
+                try {
+                    enemyMove();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
 
         playerBoard = new Board(false, event -> {
@@ -144,7 +209,7 @@ public class BattleshipMain extends Application {
         return root;
     }
 
-    private void enemyMove() {
+    private void enemyMove() throws IOException {
         while (enemyTurn) {
             int x = random.nextInt(10);
             int y = random.nextInt(10);
@@ -156,8 +221,11 @@ public class BattleshipMain extends Application {
             enemyTurn = cell.shoot();
 
             if (playerBoard.ships == 0) {
+                endScene = new Scene(player_won(false));
+                window.setScene(endScene);
+                //whindow.setScene(GameOver.player_won(false));
                 System.out.println("YOU LOSE");
-                System.exit(0);
+                //System.exit(0);
             }
         }
     }
@@ -177,25 +245,44 @@ public class BattleshipMain extends Application {
 
         running = true;
     }
-    private class GameMenu extends Parent {
+    private int count =0;
+    public class GameMenu extends Parent {
+
         public GameMenu() throws IOException {
             VBox menu0 = new VBox(10);
             VBox menu1 = new VBox(10);
 
-            menu0.setTranslateX(50);
-            menu0.setTranslateY(250);
+            if (count >=2){
+                menu0.setTranslateX(100);
+                menu0.setTranslateY(400);
 
-            menu1.setTranslateX(50);
-            menu1.setTranslateY(250);
+                menu1.setTranslateX(100);
+                menu1.setTranslateY(400);
+            }
+            else {
+
+                menu0.setTranslateX(50);
+                menu0.setTranslateY(250);
+
+                menu1.setTranslateX(50);
+                menu1.setTranslateY(250);
+            }
 
             final int offset = 400;
 
             menu1.setTranslateX(offset);
 
+            System.out.println(getScene());
+
+            System.out.println(count);
             MenuButton btnResume = new MenuButton("PLAY");
-            if(getScene() == scene) {
+            if(count==0) {
                 btnResume.setText(new Text("RESUME"));
             }
+            if(count>=2){
+                btnResume.setText(new Text("PLAY AGAIN"));
+            }
+            count++;
 
             btnResume.setOnMouseClicked(event -> {
                 FadeTransition ft = new FadeTransition(Duration.seconds(0.5), this);
@@ -203,7 +290,7 @@ public class BattleshipMain extends Application {
                 ft.setToValue(0);
                 ft.setOnFinished(evt -> setVisible(false));
                 ft.play();
-                whindow.setScene(scene);
+                window.setScene(scene);
             });
 
 
@@ -249,7 +336,15 @@ public class BattleshipMain extends Application {
             });
 
             MenuButton btnSound = new MenuButton("SOUND");
-            MenuButton btnVideo = new MenuButton("VIDEO");
+            MenuButton btnVideo = new MenuButton("RETURN TO MAIN MENU");
+            btnVideo.setOnMouseClicked(e -> {
+                window.setScene(startScene);
+                FadeTransition ft = new FadeTransition(Duration.seconds(0.5), gameMenu0);
+                ft.setFromValue(0);
+                ft.setToValue(1);
+                gameMenu0.setVisible(true);
+                ft.play();
+            });
 
             menu0.getChildren().addAll(btnResume, btnOptions, btnExit);
             menu1.getChildren().addAll(btnBack, btnSound, btnVideo);
@@ -265,7 +360,7 @@ public class BattleshipMain extends Application {
         }
     }
 
-    private static class MenuButton extends StackPane {
+    public static class MenuButton extends StackPane {
         private Text text;
 
         public void setText(Text text) {
@@ -343,7 +438,7 @@ public class BattleshipMain extends Application {
 
         InputStream is = Files.newInputStream(Paths.get("GitHub/Battleship/src/com/LaurenzSommerlad/battleship/battleshipstart.jpg"));
         Image startimg = new Image(is);
-        is.close();
+
 
         ImageView startimgView = new ImageView(startimg);
         startimgView.setFitWidth(750);
@@ -351,23 +446,22 @@ public class BattleshipMain extends Application {
 
         Pane root0 = new Pane();
         root0.setPrefSize(750, 422);
-        GameMenu gameMenu0 = new GameMenu();
+        gameMenu0 = new GameMenu();
         root0.getChildren().addAll(startimgView, gameMenu0);
         gameMenu0.setVisible(true);
 
-
-
-
-        Scene scene0 = new Scene(root0);
-        //Scene scene1 = new Scene(createContent());
+        startScene = new Scene(root0);
         primaryStage.setTitle("Battleship");
-        whindow = primaryStage;
-        whindow.setScene(scene0);
+        window = primaryStage;
+        window.setScene(startScene);
         primaryStage.setResizable(false);
         primaryStage.show();
 
+
     }
-    public Stage whindow;
+    public GameMenu gameMenu0;
+    public Scene startScene;
+    public Stage window;
     public Scene scene;
     public static void main(String[] args) {launch(args);}
 }
