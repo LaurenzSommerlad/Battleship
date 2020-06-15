@@ -9,7 +9,6 @@ import java.util.Random;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.effect.DropShadow;
@@ -25,8 +24,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.control.*;
 import javafx.util.Duration;
+import javafx.geometry.*;
 
 public class BattleshipMain extends Application {
 
@@ -158,7 +160,7 @@ public class BattleshipMain extends Application {
 
     }
 
-    private Parent createContent() {
+    /*private Parent createContent() {
         BorderPane root = new BorderPane();
         root.setPrefSize(600, 800);
 
@@ -207,7 +209,7 @@ public class BattleshipMain extends Application {
         root.setCenter(vbox);
 
         return root;
-    }
+    }*/
 
     private void enemyMove() throws IOException {
         while (enemyTurn) {
@@ -245,6 +247,12 @@ public class BattleshipMain extends Application {
 
         running = true;
     }
+    private void reset() throws IOException {
+        running = false;
+        shipsToPlace=5;
+        scene = new Scene(root());
+        window.setScene(scene);
+    }
     private int count =0;
     public class GameMenu extends Parent {
 
@@ -272,9 +280,6 @@ public class BattleshipMain extends Application {
 
             menu1.setTranslateX(offset);
 
-            System.out.println(getScene());
-
-            System.out.println(count);
             MenuButton btnResume = new MenuButton("PLAY");
             if(count==0) {
                 btnResume.setText(new Text("RESUME"));
@@ -282,7 +287,6 @@ public class BattleshipMain extends Application {
             if(count>=2){
                 btnResume.setText(new Text("PLAY AGAIN"));
             }
-            count++;
 
             btnResume.setOnMouseClicked(event -> {
                 FadeTransition ft = new FadeTransition(Duration.seconds(0.5), this);
@@ -291,7 +295,20 @@ public class BattleshipMain extends Application {
                 ft.setOnFinished(evt -> setVisible(false));
                 ft.play();
                 window.setScene(scene);
+                if(count<=2){
+                    //displayAlert("Game Rules", "Hello");
+                    System.out.println("Here should pop up an new window with game instructions");
+                }
+                if(count>=3){
+                    try {
+                        reset();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
             });
+            count++;
 
 
             MenuButton btnOptions = new MenuButton("OPTIONS");
@@ -371,6 +388,10 @@ public class BattleshipMain extends Application {
             getChildren().add(text);
         }
 
+        public Text getText() {
+            return text;
+        }
+
         public MenuButton(String name) {
             text = new Text(name);
             text.setFont(text.getFont().font(20));
@@ -407,6 +428,28 @@ public class BattleshipMain extends Application {
             setOnMouseReleased(event -> setEffect(null));
         }
     }
+
+    /*public static void displayAlert(String title, String message) {
+        Stage window2 = new Stage();
+
+        //Block events to other windows
+        window2.initModality(Modality.APPLICATION_MODAL);
+        window2.setTitle(title);
+        window2.setMinWidth(250);
+
+        //Label label = new Label(message);
+        //Button closeButton = new Button("Close this window");
+        //closeButton.setOnAction(e -> window2.close());
+
+        VBox layout = new VBox(10);
+        //layout.getChildren().addAll(label, closeButton);
+        layout.setAlignment(Pos.CENTER);
+
+        //Display window and wait for it to be closed before returning
+        Scene scene = new Scene(layout);
+        window2.setScene(scene);
+        window2.showAndWait();
+    }*/
 
     @Override
     public void start(Stage primaryStage) throws Exception {
