@@ -24,9 +24,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.control.*;
 import javafx.util.Duration;
 import javafx.geometry.*;
 
@@ -43,6 +41,11 @@ public class BattleshipMain extends Application {
     private GameMenu gameMenu;
     private Scene endScene;
     private GameMenu gameMenu1;
+    public GameMenu gameMenu0;
+    public Scene startScene;
+    public Stage window;
+    public Scene scene;
+    private double vol = -10;
 
     private Parent root() throws IOException {
         BorderPane root = new BorderPane();
@@ -160,57 +163,6 @@ public class BattleshipMain extends Application {
 
     }
 
-    /*private Parent createContent() {
-        BorderPane root = new BorderPane();
-        root.setPrefSize(600, 800);
-
-        root.setRight(new Text("RIGHT SIDEBAR - CONTROLS"));
-
-        enemyBoard = new Board(true, event -> {
-            if (!running)
-                return;
-
-            Board.Cell cell = (Board.Cell) event.getSource();
-            if (cell.wasShot)
-                return;
-
-            enemyTurn = !cell.shoot();
-
-            if (enemyBoard.ships == 0) {
-
-                System.out.println("YOU WIN");
-                //System.exit(0); // implemtent exit screen
-            }
-
-            if (enemyTurn) {
-                try {
-                    enemyMove();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        playerBoard = new Board(false, event -> {
-            if (running)
-                return;
-
-            Board.Cell cell = (Board.Cell) event.getSource();
-            if (playerBoard.placeShip(new Ship(shipsToPlace, event.getButton() == MouseButton.PRIMARY), cell.x, cell.y)) {
-                if (--shipsToPlace == 0) {
-                    startGame();
-                }
-            }
-        });
-
-        VBox vbox = new VBox(50, enemyBoard, playerBoard);
-        vbox.setAlignment(Pos.CENTER);
-
-        root.setCenter(vbox);
-
-        return root;
-    }*/
-
     private void enemyMove() throws IOException {
         while (enemyTurn) {
             int x = random.nextInt(10);
@@ -247,18 +199,21 @@ public class BattleshipMain extends Application {
 
         running = true;
     }
+
     private void reset() throws IOException {
         running = false;
         shipsToPlace=5;
         scene = new Scene(root());
         window.setScene(scene);
     }
+
     private int count =0;
     public class GameMenu extends Parent {
 
         public GameMenu() throws IOException {
             VBox menu0 = new VBox(10);
             VBox menu1 = new VBox(10);
+            VBox menu2 = new VBox(10);
 
             if (count >=2){
                 menu0.setTranslateX(100);
@@ -266,6 +221,9 @@ public class BattleshipMain extends Application {
 
                 menu1.setTranslateX(100);
                 menu1.setTranslateY(400);
+
+                menu2.setTranslateX(100);
+                menu2.setTranslateY(400);
             }
             else {
 
@@ -274,6 +232,9 @@ public class BattleshipMain extends Application {
 
                 menu1.setTranslateX(50);
                 menu1.setTranslateY(250);
+
+                menu2.setTranslateX(50);
+                menu2.setTranslateY(250);
             }
 
             final int offset = 400;
@@ -353,6 +314,23 @@ public class BattleshipMain extends Application {
             });
 
             MenuButton btnSound = new MenuButton("SOUND");
+            btnSound.setOnMouseClicked(e -> {
+                getChildren().add(menu2);
+
+                TranslateTransition tt = new TranslateTransition(Duration.seconds(0.25), menu1);
+                tt.setToX(menu1.getTranslateX() - offset);
+
+                TranslateTransition tt1 = new TranslateTransition(Duration.seconds(0.5), menu2);
+                tt1.setToX(menu1.getTranslateX());
+
+                tt.play();
+                tt1.play();
+
+                tt.setOnFinished(evt -> {
+                    getChildren().remove(menu1);
+                });
+            });
+
             MenuButton btnVideo = new MenuButton("RETURN TO MAIN MENU");
             btnVideo.setOnMouseClicked(e -> {
                 window.setScene(startScene);
@@ -363,8 +341,40 @@ public class BattleshipMain extends Application {
                 ft.play();
             });
 
+            MenuButton btnBack2 = new MenuButton("BACK");
+            btnBack2.setOnMouseClicked(event -> {
+                getChildren().add(menu1);
+
+                TranslateTransition tt = new TranslateTransition(Duration.seconds(0.25), menu2);
+                tt.setToX(menu2.getTranslateX() + offset);
+
+                TranslateTransition tt1 = new TranslateTransition(Duration.seconds(0.5), menu1);
+                tt1.setToX(menu2.getTranslateX());
+
+                tt.play();
+                tt1.play();
+
+                tt.setOnFinished(evt -> {
+                    getChildren().remove(menu2);
+                });
+            });
+
+            MenuButton btnVolUp = new MenuButton("VOLUME UP");
+            btnVolUp.setOnMouseClicked(e -> {
+                if(vol<0)
+                    vol+=2.5;
+                MusicPlayer.setVol(vol);
+            });
+
+            MenuButton btnVolDown = new MenuButton("VOLUME DOWN");
+            btnVolDown.setOnMouseClicked(e -> {
+                vol-=2.5;
+                MusicPlayer.setVol(vol);
+            });
+
             menu0.getChildren().addAll(btnResume, btnOptions, btnExit);
             menu1.getChildren().addAll(btnBack, btnSound, btnVideo);
+            menu2.getChildren().addAll(btnBack2, btnVolUp, btnVolDown);
 
             Rectangle bg = new Rectangle(960, 540);
             bg.setOpacity(0);
@@ -429,7 +439,7 @@ public class BattleshipMain extends Application {
         }
     }
 
-    /*public static void displayAlert(String title, String message) {
+    /*public static void displayAlert (String title, String message) {
         Stage window2 = new Stage();
 
         //Block events to other windows
@@ -437,12 +447,12 @@ public class BattleshipMain extends Application {
         window2.setTitle(title);
         window2.setMinWidth(250);
 
-        //Label label = new Label(message);
-        //Button closeButton = new Button("Close this window");
-        //closeButton.setOnAction(e -> window2.close());
+        Label label = new Label(message);
+        Button closeButton = new Button("Close this window");
+        closeButton.setOnAction(e -> window2.close());
 
         VBox layout = new VBox(10);
-        //layout.getChildren().addAll(label, closeButton);
+        layout.getChildren().addAll(label, closeButton);
         layout.setAlignment(Pos.CENTER);
 
         //Display window and wait for it to be closed before returning
@@ -463,9 +473,7 @@ public class BattleshipMain extends Application {
                     FadeTransition ft = new FadeTransition(Duration.seconds(0.5), gameMenu);
                     ft.setFromValue(0);
                     ft.setToValue(1);
-                    System.out.println("Hello");
                     gameMenu.setVisible(true);
-                    //gameMenu.toFront();
                     ft.play();
                 }
                 else {
@@ -500,11 +508,10 @@ public class BattleshipMain extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
+        MusicPlayer player = new MusicPlayer("Epic Music", "Battleship Soundtrack");
+        player.run();
 
     }
-    public GameMenu gameMenu0;
-    public Scene startScene;
-    public Stage window;
-    public Scene scene;
+
     public static void main(String[] args) {launch(args);}
 }
